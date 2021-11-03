@@ -1,3 +1,5 @@
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/thedonmon/solana-nft-sales-tracker/tree/mergeMyBot)
+
 # Solana NFT Sales Tracker
 This repository contains code that can be used to run your own marketplace sales tracker for Solana NFTs. It relies on the concept of royalties being automatically credited to the creators and uses those transactions to identify sales. This ensures that the code is marketplace agnostic i.e as long as royalties are properly credited to the creator of the NFT, the transaction can be identified and parsed for necessary values.
 

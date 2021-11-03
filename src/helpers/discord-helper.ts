@@ -1,10 +1,10 @@
 import _ from 'lodash';
 import axios from 'axios';
-
 /**
  * Just setup a new channel in discord, then go to settings, integrations and created a new webhook
  * Set the webhook URL in the config.json.
  */
+
 export default class DiscordHelper {
   config: any;
   constructor(config:any){

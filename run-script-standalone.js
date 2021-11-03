@@ -3,7 +3,7 @@
  * node run-script-standalone.js --config='./config/sample.json' --outputType=console
  * Supported outputTypes are console/discord/twitter.
  */
-import SalesTracker from './src/main.js';
+import SalesTracker from './src/main';
 import yargs from 'yargs'
 import fs from 'fs';
 import _ from 'lodash';
@@ -15,4 +15,7 @@ let outputType = overrides.outputType || 'console';;
 let config = JSON.parse(fs.readFileSync(configPath).toString());
 config = _.assignIn(config, overrides);
 let tracker = new SalesTracker(config, outputType);
-tracker.checkSales();
+setInterval(() => {
+    tracker.checkSales();
+}, 30000);
+//tracker.checkSales();

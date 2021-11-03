@@ -1,13 +1,13 @@
 {
   "name": "solana-nft-sales-tracker",
   "version": "1.0.0",
-  "type": "module",
   "description": "A rudimentary NodeJS script that scrapes Solana transactions to idenitfy NFT purchases on marketplaces. Comes with plugins that allow posting to Discord/Twitter.",
-  "main": "index.js",
+  "main": "./dist/src/app.js",
   "scripts": {
-    "build": "tsc -t es6 src/**/**.ts",
-    "console_run": "node run-script-standalone.js --config='./config/sample.json' --outputType=console",
-    "console_cron": "node cron.js --config='./config/sample.json' --debugMode=true --outputType=console",
+    "build": "tsc",
+    "build-dev": "tsc -w",
+    "console_run": "node ./dist/src/run-script-standalone.js",
+    "serve": "node ./dist/src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -16,17 +16,28 @@
     "@solana/spl-token": "^0.1.8",
     "@solana/web3.js": "^1.29.2",
     "@types/bs58": "^4.0.1",
+    "@types/getenv": "^1.0.0",
     "axios": "^0.22.0",
     "borsh": "^0.6.0",
     "bs58": "^4.0.1",
     "buffer-layout": "^1.2.2",
+    "discord.js": "^13.3.1",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "getenv": "^1.0.0",
+    "jsoning": "^0.12.22",
     "lodash": "^4.17.21",
+    "node-cache": "^5.1.2",
     "node-cron": "^3.0.0",
     "twitter": "^1.7.1",
-    "typescript": "^4.4.3",
+    "typescript": "^4.4.4",
     "yargs": "^17.2.1"
   },
   "devDependencies": {
-    "@types/yargs": "^17.0.3"
+    "@types/express": "^4.17.13",
+    "@types/node": "^16.11.6",
+    "@types/twitter": "^1.7.1",
+    "@types/yargs": "^17.0.3",
+    "typescript": "^4.4.4"
   }
 }

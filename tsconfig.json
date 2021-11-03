@@ -1,17 +1,19 @@
 {
   "compilerOptions": {
     "moduleResolution": "node",
-    "target": "es6",
+    "target": "esnext",
     "module": "commonjs",
-    "lib": ["es6"],
+    "lib": ["es2019", "es6", "DOM"],
     "strict": true,
     "sourceMap": true,
     "declaration": true,
+    "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "declarationDir": "./dist",
+    "rootDir": "./",
     "outDir": "./dist",
     "typeRoots": ["node_modules/@types"]
   },

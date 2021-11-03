@@ -1,11 +1,16 @@
-import { Connection, PublicKey, ConfirmedSignatureInfo } from "@solana/web3.js";
-import { getMetadata } from './helpers/metadata-helpers.js'
-import DiscordHelper from './helpers/discord-helper.js'
-import TwitterHelper from './helpers/twitter-helper.js'
+import { Connection, PublicKey, ConfirmedSignatureInfo, ConfirmedSignaturesForAddress2Options } from "@solana/web3.js";
+import { getMetadata } from './helpers/metadata-helpers'
+import DiscordHelper from './helpers/discord-helper'
+import TwitterHelper from './helpers/twitter-helper'
+
 
 import _ from 'lodash';
 import axios from 'axios'
 import fs from 'fs';
+import Jsoning from "jsoning";
+import { string } from "yargs";
+import Marketplace from "./models/marketplace";
+let db = new Jsoning('signatureMarker.json');
 
 export default class SaleTracker {
   config: any
@@ -24,15 +29,21 @@ export default class SaleTracker {
    */
   async checkSales() {
     const me = this;
-    let lockFile = me._readOrCreateAuditFile();
-    let lastProcessedSignature = _.last(lockFile.processedSignatures);
+    //let lockFile = me._readOrCreateAuditFile();
+    let options = await me._getAndFormatOptions();
+    //let lastProcessedSignature = _.last(lockFile.processedSignatures);
     console.log("Started");
-    const confirmedSignatures: ConfirmedSignatureInfo[] = _.reverse(
-      await this.connection.getConfirmedSignaturesForAddress2(new PublicKey(me.config.primaryRoyaltiesAccount), { limit: 25, until: lastProcessedSignature })
-    );
-    _.remove(confirmedSignatures, (tx: any) => {
-      return _.includes(lockFile.processedSignatures, tx.signature)
-    })
+    const confirmedSignatures: ConfirmedSignatureInfo[] = await this.connection.getConfirmedSignaturesForAddress2(new PublicKey(me.config.primaryRoyaltiesAccount), options);
+    if(!confirmedSignatures || confirmedSignatures.length == 0){
+      console.log("No new txns..");
+      return;
+    }
+    const latestSignature = confirmedSignatures[0].signature;
+    if(options.until){
+      _.remove(confirmedSignatures, (tx: any) => {
+        return options.until?.includes(tx.signature)
+      });
+    }
     console.log("Got transactions", confirmedSignatures.length);
 
     for (let confirmedSignature of confirmedSignatures) {
@@ -40,9 +51,11 @@ export default class SaleTracker {
       if (saleInfo) {
         await me._getOutputPlugin().send(saleInfo);
       }
-      await me._updateLockFile(confirmedSignature.signature);
-      console.log("Updated lockfile", confirmedSignature.signature);
     }
+    console.log("Updated lockfile", latestSignature);
+    await db.set("lastSignature", latestSignature);
+    //await me._updateLockFile(latestSignature);
+
     console.log("Done");
   }
 
@@ -75,7 +88,14 @@ export default class SaleTracker {
       processedSignatures: []
     });
   }
-
+  
+  async _getAndFormatOptions(): Promise<ConfirmedSignaturesForAddress2Options> {
+    let lastSignature = await db.get("lastSignature");
+    if(lastSignature){
+      return { limit: 25, until: lastSignature };
+    }
+    return { limit: 25 };
+  }
   /**
    * Returns the auditfile if it exists, if not createss a new empty one.
    * @returns The contents of the auditfile.
@@ -99,7 +119,7 @@ export default class SaleTracker {
   async _updateLockFile(signature: string) {
     const me = this;
     let file = me._readOrCreateAuditFile();
-    file.processedSignatures.push(signature);
+    file.processedSignatures[0] = signature;
     if (file.processedSignatures.length > 300) {
       file.processedSignatures = _.takeRight(file.processedSignatures, 10);
     }
@@ -123,12 +143,13 @@ export default class SaleTracker {
    * @param addresses 
    * @returns 
    */
-  _mapMarketPlace(addresses: string[]): string {
+  _mapMarketPlace(addresses: string[]): Marketplace {
     const me = this;
-    let marketPlace: string = '';
+    let marketPlace: Marketplace = {} as Marketplace;
     _.forEach(me.config.marketPlaceInfos, (mpInfo: any) => {
       if (_.size(_.intersection(addresses, mpInfo.addresses)) > 0) {
-        marketPlace = mpInfo.name;
+        marketPlace.name = mpInfo.name;
+        marketPlace.mintUrl = mpInfo.assetUrl;
         return false;
       }
     })
@@ -197,7 +218,8 @@ export default class SaleTracker {
       return {
         time: transactionInfo?.blockTime,
         txSignature: signature,
-        marketPlace: marketPlace ? marketPlace : 'Unknown',
+        marketPlace: marketPlace.name ? marketPlace.name : 'Unknown',
+        assetUrl: marketPlace.mintUrl ? marketPlace.mintUrl : null,
         buyer,
         seller,
         saleAmount,
@@ -240,14 +262,17 @@ export default class SaleTracker {
         largestBalanceIncrease = balanceIncrease;
       }
     });
-
+    let marketPlaceInfo = me._mapMarketPlace(allAddresses);
+    if(marketPlaceInfo.mintUrl !== null){
+      marketPlaceInfo.mintUrl = `${marketPlaceInfo.mintUrl}${_.get(txMetadata, `postTokenBalances.0.mint`)}`
+    }
     return {
       accountPreBalances,
       accountPostBalances,
       balanceDifferences,
       seller,
       mintInfo,
-      marketPlace: me._mapMarketPlace(allAddresses),
+      marketPlace: marketPlaceInfo,
       saleAmount: me._getSaleAmount(accountPostBalances, accountPreBalances, buyer)
     }
   }

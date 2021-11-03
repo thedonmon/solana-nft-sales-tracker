@@ -1,0 +1,80 @@
+{
+    "name": "NFT Discord Bot",
+    "description": "A Twitter/Discord bot for getting NFT data from Solana MarketPlaces",
+    "logo": "https://solana.com/branding/new/exchange/exchange-black.png",
+    "keywords": [
+      "spl",
+      "nft",
+      "discord",
+      "solana",
+      "alphaart",
+      "twitter",
+      "magiceden"
+    ],
+    "repository": "https://github.com/thedonmon/solana-nft-sales-tracker.git",
+    "env": {
+      "HOW_RARE_IS": {
+        "description": "URL to the collection on your howrare.is page. Please include trailing slash.",
+        "required": false
+      },
+      "DISCORD_BOT_TOKEN": {
+        "description": "**Required if discord enabled**. Pretty self explanatory",
+        "required": false
+      },
+      "DISCORD_SALES_CHANNEL_ID": {
+        "description": "**Required if discord enabled**. The discord channel id where sales events should be posted to, should look like a long number",
+        "required": false
+      },
+      "DISCORD_LISTING_CHANNEL_ID": {
+        "description": "**Required if discord enabled**. The discord channel id where listing events should be posted to, should look like a long number",
+        "required": false
+      },
+      "DISCORD_OPTIONAL_CHANNEL_ID": {
+        "description": "The discord channel id where you can also send sales updates to based on a threshold value",
+        "required": false
+      },
+      "PRICE_THRESHOLD": {
+        "description": "**Required if optional discord channel enabled**. Number to trigger posting to the optional channel.",
+        "required": false
+      },
+      "DISCORD_TOKEN_COMMAND": {
+        "description": "The command word you'd like the bot to respond to for posting token information, pick a simple word that represents the collection.  Default: token",
+        "required": false
+      },
+      "TWITTER_TIMEOUT_MS": {
+        "description": "**Required if twitter enabled**. Set interval to frequency of bot runs / polling for twitter bot in ms",
+        "required": false
+      },
+      "TWITTER_API_KEY": {
+        "description": "**Required if twitter enabled**. Consumer API key for twitter",
+        "required": false
+      },
+      "TWITTER_API_SECRET": {
+        "description": "**Required if twitter enabled**. Consumer API secret for twitter",
+        "required": false
+      },
+      "TWITTER_ACCESS_TOKEN": {
+        "description": "**Required if twitter enabled**. Twitter access tokent",
+        "required": false
+      },
+      "TWITTER_ACCESS_SECRET": {
+        "description": "**Required if twitter enabled**. Twitter access secret",
+        "required": false
+      },
+      "TWITTER_HASTAGS": {
+        "description": "Optional. Hashtags to add to the end of the tweet comma seperated. Include the # symbol",
+        "required": false
+      }
+  
+    },
+    "image": "heroku/nodejs",
+    "buildpacks": [
+      {
+        "url": "heroku/nodejs"
+      },
+      {
+        "url": "https://github.com/zidizei/heroku-buildpack-tsc.git"
+      }
+    ]
+  }
+  

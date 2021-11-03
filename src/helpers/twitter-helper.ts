@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import axios from 'axios';
 import Twitter from 'twitter';
+import getenv from 'getenv'
 
 /**
  * Twitter uses 3 legged oAuth for certain endpoints. 
@@ -10,13 +11,13 @@ import Twitter from 'twitter';
 export default class TwitterHelper {
   config: any;
   client: any;
-  constructor(config:any) {
+  constructor(config: any) {
     this.config = config;
     this.client = new Twitter({
-      consumer_key: this.config.twitter.consumerApiKey,
-      consumer_secret: this.config.twitter.consumerApiSecret,
-      access_token_key: this.config.twitter.oauth.token,
-      access_token_secret: this.config.twitter.oauth.secret
+      consumer_key: getenv.string('TWITTER_API_KEY'),
+      consumer_secret: getenv.string('TWITTER_API_SECRET'),
+      access_token_key: getenv.string('TWITTER_API_KEY'),
+      access_token_secret: getenv.string('TWITTER_ACCESS_SECRET')
     });
   }
 
@@ -25,7 +26,7 @@ export default class TwitterHelper {
    * @param url 
    * @returns 
    */
-  getBase64(url:string) {
+  getBase64(url: string) {
     return axios.get(url, {
       responseType: 'arraybuffer'
     }).then(response => Buffer.from(response.data, 'binary').toString('base64'))
@@ -36,18 +37,28 @@ export default class TwitterHelper {
    * @param saleInfo 
    * @returns 
    */
-  formatTweet(saleInfo:any) {
+  formatTweet(saleInfo: any) {
+    let tweetstr = `
+    ${saleInfo.nftInfo.id} purchased for ${saleInfo.saleAmount} S◎L 
+    Marketplace: ${saleInfo.marketPlace.name}
+
+    ${this.config.twitterHashtags}
+  
+    Explorer: https://explorer.solana.com/tx/${saleInfo.txSignature}
+      `;
+    if (saleInfo.marketPlace.assetUrl !== null) {
+      tweetstr = `
+      ${saleInfo.nftInfo.id} purchased for ${saleInfo.saleAmount} S◎L 
+      Marketplace: ${saleInfo.marketPlace.name}
+      ${saleInfo.marketPlace.assetUrl}
+    
+      ${this.config.twitterHashtags}
+    
+      Explorer: https://solscan.io/tx/${saleInfo.txSignature}
+        `;
+    }
     return {
-      status: `
-  ${saleInfo.nftInfo.id} purchased for ${saleInfo.saleAmount} S◎L 🐦 
-  Marketplaces 📒 
-  → https://digitaleyes.market/collections/Flutter
-  → https://magiceden.io/marketplace?collection_symbol=flutter
-  
-  @FlutterNFT #FlutterNFT #FlutterTogether
-  
-  Explorer: https://explorer.solana.com/tx/${saleInfo.txSignature}
-    `
+      status: tweetstr
     };
   }
 
@@ -55,7 +66,7 @@ export default class TwitterHelper {
    * Creates a formatted tweet, uploads the NFT image to twitter and then posts a status update.
    * @param saleInfo 
    */
-  async send(saleInfo:any) {
+  async send(saleInfo: any) {
     const me = this;
     let tweetInfo = me.formatTweet(saleInfo);
     let image = await me.getBase64(`${saleInfo.nftInfo.image}`);
