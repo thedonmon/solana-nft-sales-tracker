@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "build-dev": "tsc -w",
-    "serve": "node  --require dotenv/config ./dist/app.js",
+    "start": "node --require dotenv/config ./dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
