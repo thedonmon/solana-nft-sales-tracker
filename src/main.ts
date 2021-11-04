@@ -263,7 +263,7 @@ export default class SaleTracker {
       }
     });
     let marketPlaceInfo = me._mapMarketPlace(allAddresses);
-    if (marketPlaceInfo.mintUrl !== null) {
+    if (marketPlaceInfo.mintUrl && marketPlaceInfo.mintUrl != null) {
       marketPlaceInfo.mintUrl = `${marketPlaceInfo.mintUrl}${_.get(txMetadata, `postTokenBalances.0.mint`)}`;
     }
     else {
