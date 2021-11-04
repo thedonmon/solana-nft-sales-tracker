@@ -17,6 +17,10 @@
         "description": "URL to the collection on your howrare.is page. Please include trailing slash.",
         "required": false
       },
+      "COLLECTION_NAME":{
+        "description": "Name of the collection to use. Reference marketplaces or howrare to see how its formatted",
+        "required": true
+      },
       "BOT_NAME": {
         "description": "**Required if discord webhook enabled**. Pretty self explanatory",
         "required": false
