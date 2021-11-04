@@ -29,12 +29,8 @@
         "description": "**Required if discord enabled**. Pretty self explanatory",
         "required": false
       },
-      "DISCORD_SALES_CHANNEL_ID": {
+      "DISCORD_CHANNEL_ID": {
         "description": "**Required if discord enabled**. The discord channel id where sales events should be posted to, should look like a long number",
-        "required": false
-      },
-      "DISCORD_LISTING_CHANNEL_ID": {
-        "description": "**Required if discord enabled**. The discord channel id where listing events should be posted to, should look like a long number",
         "required": false
       },
       "DISCORD_OPTIONAL_CHANNEL_ID": {
@@ -43,10 +39,6 @@
       },
       "PRICE_THRESHOLD": {
         "description": "**Required if optional discord channel enabled**. Number to trigger posting to the optional channel.",
-        "required": false
-      },
-      "DISCORD_TOKEN_COMMAND": {
-        "description": "The command word you'd like the bot to respond to for posting token information, pick a simple word that represents the collection.  Default: token",
         "required": false
       },
       "TWITTER_TIMEOUT_MS": {
