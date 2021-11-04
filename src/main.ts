@@ -10,6 +10,8 @@ import fs from 'fs';
 import Jsoning from "jsoning";
 import { string } from "yargs";
 import Marketplace from "./models/marketplace";
+import Discord from "discord.js";
+import PriceService from "./helpers/priceService";
 let db = new Jsoning('signatureMarker.json');
 
 export default class SaleTracker {
@@ -17,11 +19,15 @@ export default class SaleTracker {
   connection: Connection;
   auditFilePath: string;
   outputType: string;
-  constructor(config: any, outputType: string) {
+  priceService: PriceService;
+  discordClient?: Discord.Client;
+  constructor(config: any, outputType: string, priceService: PriceService, discordClient?: Discord.Client) {
     this.config = config;
     this.connection = new Connection(this.config.rpc);
     this.auditFilePath = `./auditfile-${outputType}.json`;
     this.outputType = outputType;
+    this.priceService = priceService;
+    this.discordClient = discordClient;
   }
 
   /**
@@ -72,9 +78,13 @@ export default class SaleTracker {
         }
       }
     }
-    if (me.outputType === 'discord') {
+    if (me.outputType === 'discord_webhook') {
       return new DiscordHelper(me.config);
-    } else {
+    }
+    else if (me.outputType === 'discord_bot'){
+      return new DiscordHelper(me.config, me.discordClient)
+    } 
+    else {
       return new TwitterHelper(me.config);
     }
   }
@@ -204,7 +214,8 @@ export default class SaleTracker {
       seller,
       mintInfo,
       saleAmount,
-      marketPlace
+      marketPlace,
+      mintPubkey
     } = me._parseTransactionMeta(transactionInfo, accountMap, buyer, allAddresses);
 
     if (balanceDifferences && balanceDifferences[me.config.primaryRoyaltiesAccount] > 0 && !_.isEmpty(marketPlace)) {
@@ -223,6 +234,7 @@ export default class SaleTracker {
         buyer,
         seller,
         saleAmount,
+        mintPubkey,
         nftInfo: {
           id: _.get(mintMetaData, `data.name`),
           name: _.get(mintMetaData, `data.name`),
@@ -276,6 +288,7 @@ export default class SaleTracker {
       seller,
       mintInfo,
       marketPlace: marketPlaceInfo,
+      mintPubkey: _.get(txMetadata, `postTokenBalances.0.mint`),
       saleAmount: me._getSaleAmount(accountPostBalances, accountPreBalances, buyer)
     }
   }
