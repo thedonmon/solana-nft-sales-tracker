@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import getenv from 'getenv';
 import axios from 'axios';
 /**
  * Just setup a new channel in discord, then go to settings, integrations and created a new webhook
@@ -12,12 +13,14 @@ export default class DiscordHelper {
   }
 
   _createWebhookData(saleInfo:any) {
+    const botName = getenv('BOT_NAME', "NFTBot");
+    const botAuthor = getenv('BOT_AUTHORT', "NFTBot");
     return {
-      "username": "Flutter Sales Bot",
+      "username": botName,
       "embeds": [
         {
           "author": {
-            "name": "Flutter Sales Bot"
+            "name": botAuthor
           },
           "fields": [
             {
