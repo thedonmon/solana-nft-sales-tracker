@@ -34,12 +34,12 @@ export default class SaleTracker {
     //let lastProcessedSignature = _.last(lockFile.processedSignatures);
     console.log("Started");
     const confirmedSignatures: ConfirmedSignatureInfo[] = await this.connection.getConfirmedSignaturesForAddress2(new PublicKey(me.config.primaryRoyaltiesAccount), options);
-    if(!confirmedSignatures || confirmedSignatures.length == 0){
+    if (!confirmedSignatures || confirmedSignatures.length == 0) {
       console.log("No new txns..");
       return;
     }
     const latestSignature = confirmedSignatures[0].signature;
-    if(options.until){
+    if (options.until) {
       _.remove(confirmedSignatures, (tx: any) => {
         return options.until?.includes(tx.signature)
       });
@@ -88,10 +88,10 @@ export default class SaleTracker {
       processedSignatures: []
     });
   }
-  
+
   async _getAndFormatOptions(): Promise<ConfirmedSignaturesForAddress2Options> {
     let lastSignature = await db.get("lastSignature");
-    if(lastSignature){
+    if (lastSignature) {
       return { limit: 25, until: lastSignature };
     }
     return { limit: 25 };
@@ -172,7 +172,7 @@ export default class SaleTracker {
    * @param mintMetadata 
    * @returns 
    */
-  _verifyNFT(mintMetadata:any) {
+  _verifyNFT(mintMetadata: any) {
     const me = this;
     let creators = _.map(mintMetadata.data.creators, 'address');
     let updateAuthority = _.get(mintMetadata, `updateAuthority`);
@@ -263,8 +263,11 @@ export default class SaleTracker {
       }
     });
     let marketPlaceInfo = me._mapMarketPlace(allAddresses);
-    if(marketPlaceInfo.mintUrl !== null){
-      marketPlaceInfo.mintUrl = `${marketPlaceInfo.mintUrl}${_.get(txMetadata, `postTokenBalances.0.mint`)}`
+    if (marketPlaceInfo.mintUrl !== null) {
+      marketPlaceInfo.mintUrl = `${marketPlaceInfo.mintUrl}${_.get(txMetadata, `postTokenBalances.0.mint`)}`;
+    }
+    else {
+      marketPlaceInfo.mintUrl = `https://solscan.io/token/${_.get(txMetadata, `postTokenBalances.0.mint`)}`;
     }
     return {
       accountPreBalances,

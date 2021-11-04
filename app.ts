@@ -1,13 +1,14 @@
 import express from "express";
 import getenv from "getenv";
-import config from '../config/sample.json';
+import config from './config/sample.json';
 const app = express();
 const port = getenv.int('PORT', 5000);
-import Discord, { Options, TextChannel } from 'discord.js';
+import SaleTracker from "./src/main";
+import { Client, TextChannel } from 'discord.js';
 
-if(getenv.string('DISCORD_BOT_TOKEN', 'null') !== 'null'){
-    const client = new Discord.Client(Options.createDefault());
-    async () => {await initBot(client)};
+if(getenv('DISCORD_BOT_TOKEN', 'null') !== 'null'){
+    const client = new Client();
+    initBot(client);
 }
 
 app.get('/', (req, res) => {
@@ -17,14 +18,19 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log(`Bot listening at http://localhost:${port}`)
 });
-
-async function initBot(client: Discord.Client): Promise<TextChannel> {
+let outputType = 'console';
+//config = _.assignIn(config, overrides);
+let tracker = new SaleTracker(config, outputType);
+setInterval(async () => {
+    await tracker.checkSales();
+}, 30000);
+async function initBot(client: Client): Promise<TextChannel> {
     return new Promise<TextChannel>((resolve, reject) => {
       ['DISCORD_BOT_TOKEN', 'DISCORD_CHANNEL_ID'].forEach((envVar) => {
         if (!getenv(envVar)) reject(`${envVar} not set`)
-      });
+      })
     
-      client.login(process.env.DISCORD_BOT_TOKEN);
+      client.login(getenv("DISCORD_BOT_TOKEN"));
       client.on('ready', async () => {
         console.log(`Logged in as ${client?.user?.tag}!`);
         console.log(`Listening to new events for collection ${getenv('COLLECTION_NAME')}`);
