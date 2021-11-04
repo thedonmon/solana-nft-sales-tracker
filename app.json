@@ -17,6 +17,14 @@
         "description": "URL to the collection on your howrare.is page. Please include trailing slash.",
         "required": false
       },
+      "BOT_NAME": {
+        "description": "**Required if discord webhook enabled**. Pretty self explanatory",
+        "required": false
+      },
+      "BOT_AUTHOR": {
+        "description": "**Required if discord webhook enabled**. Pretty self explanatory",
+        "required": false
+      },
       "DISCORD_BOT_TOKEN": {
         "description": "**Required if discord enabled**. Pretty self explanatory",
         "required": false
